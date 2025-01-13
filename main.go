@@ -47,30 +47,30 @@ func restartPod(podName string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	log.Printf("Updating %s", podName)
+	log.Printf("updating %s", podName)
 	pod, err := clientset.CoreV1().Pods("").Get(context.TODO(), podName, metav1.GetOptions{})
 	if err != nil {
-		log.Println(fmt.Errorf("Couldn't fetch Pod", err))
+		log.Println("couldn't fetch Pod", err)
 		return
 	}
 	if pod.ObjectMeta.OwnerReferences[0].Kind != "ReplicaSet" {
-		log.Println("Not controlled by ReplicaSet")
+		log.Println("not controlled by ReplicaSet")
 		return
 	}
 	rs, err := clientset.AppsV1().ReplicaSets("").Get(context.TODO(), pod.ObjectMeta.OwnerReferences[0].Name, metav1.GetOptions{})
-	if rs != nil {
-		log.Println(fmt.Errorf("Couldn't fetch ReplicaSet", err))
+	if err != nil {
+		log.Println("couldn't fetch ReplicaSet", err)
 		return
 	}
 	if rs.ObjectMeta.OwnerReferences[0].Kind != "Deployment" {
-		log.Println("Not controlled by Deployment")
+		log.Println("not controlled by Deployment")
 		return
 	}
 	data := fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format("20060102150405"))
 	_, err = clientset.AppsV1().Deployments("").Patch(context.TODO(), rs.ObjectMeta.OwnerReferences[0].Name, types.StrategicMergePatchType, []byte(data), v1.PatchOptions{})
 	if err != nil {
-		log.Println(fmt.Errorf("Failed to restart deployment %s", &rs.ObjectMeta.OwnerReferences[0].Name, err))
+		log.Println(fmt.Errorf("failed to restart deployment %p %w", &rs.ObjectMeta.OwnerReferences[0].Name, err))
 		return
 	}
-	log.Printf("Updated %s successfully", podName)
+	log.Printf("updated %s successfully", podName)
 }
