@@ -19,9 +19,12 @@ import (
 )
 
 type DiunWebhook struct {
-	Metadata struct {
-		PodName string `json:"pod_name"`
-	}
+	Metadata DiunMetadata
+}
+
+type DiunMetadata struct {
+	PodName      string `json:"pod_name"`
+	PodNamespace string `json:"pod_namespace"`
 }
 
 func main() {
@@ -33,7 +36,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		restartPod(diunWebhook.Metadata.PodName)
+		restartPod(diunWebhook.Metadata)
 	})
 
 	server := &http.Server{
@@ -62,7 +65,7 @@ func main() {
 	}
 }
 
-func restartPod(podName string) {
+func restartPod(metadata DiunMetadata) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		panic(err.Error())
@@ -72,8 +75,8 @@ func restartPod(podName string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	log.Printf("updating %s", podName)
-	pod, err := clientset.CoreV1().Pods("").Get(context.TODO(), podName, metav1.GetOptions{})
+	log.Printf("updating %s", metadata.PodName)
+	pod, err := clientset.CoreV1().Pods(metadata.PodNamespace).Get(context.TODO(), metadata.PodName, metav1.GetOptions{})
 	if err != nil {
 		log.Println("couldn't fetch Pod", err)
 		return
@@ -82,7 +85,7 @@ func restartPod(podName string) {
 		log.Println("not controlled by ReplicaSet")
 		return
 	}
-	rs, err := clientset.AppsV1().ReplicaSets("").Get(context.TODO(), pod.ObjectMeta.OwnerReferences[0].Name, metav1.GetOptions{})
+	rs, err := clientset.AppsV1().ReplicaSets(metadata.PodNamespace).Get(context.TODO(), pod.ObjectMeta.OwnerReferences[0].Name, metav1.GetOptions{})
 	if err != nil {
 		log.Println("couldn't fetch ReplicaSet", err)
 		return
@@ -92,10 +95,10 @@ func restartPod(podName string) {
 		return
 	}
 	data := fmt.Sprintf(`{"spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": "%s"}}}}}`, time.Now().Format("20060102150405"))
-	_, err = clientset.AppsV1().Deployments("").Patch(context.TODO(), rs.ObjectMeta.OwnerReferences[0].Name, types.StrategicMergePatchType, []byte(data), v1.PatchOptions{})
+	_, err = clientset.AppsV1().Deployments(metadata.PodNamespace).Patch(context.TODO(), rs.ObjectMeta.OwnerReferences[0].Name, types.StrategicMergePatchType, []byte(data), v1.PatchOptions{})
 	if err != nil {
 		log.Println(fmt.Errorf("failed to restart deployment %p %w", &rs.ObjectMeta.OwnerReferences[0].Name, err))
 		return
 	}
-	log.Printf("updated %s successfully", podName)
+	log.Printf("updated %s successfully", metadata.PodName)
 }
