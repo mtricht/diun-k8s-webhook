@@ -1,6 +1,6 @@
 # diun-k8s-webhook
 
-When a new image is available and a webhook payload from [diun](https://github.com/crazy-max/diun) is received with the corresponding pod name, this package automatically finds the deployment that is using that docker image and restarts it.
+When a webhook payload from [diun](https://github.com/crazy-max/diun) is received indicating a new image is available (along with the corresponding pod name), this application automatically identifies the associated Kubernetes deployment using that image and triggers a restart to pull the updated image
 
 Requires view and edit cluster role permissions:
 ```
