@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -16,15 +18,19 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 type DiunWebhook struct {
+	Digest   string
 	Metadata DiunMetadata
 }
 
 type DiunMetadata struct {
-	PodName      string `json:"pod_name"`
-	PodNamespace string `json:"pod_namespace"`
+	ContainerName string `json:"ctn_name"`
+	PodName       string `json:"pod_name"`
+	PodNamespace  string `json:"pod_namespace"`
 }
 
 func main() {
@@ -36,7 +42,7 @@ func main() {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		restartPod(diunWebhook.Metadata)
+		restartPod(diunWebhook)
 	})
 
 	server := &http.Server{
@@ -65,13 +71,23 @@ func main() {
 	}
 }
 
-func restartPod(metadata DiunMetadata) {
+func restartPod(webhook DiunWebhook) {
+	metadata := webhook.Metadata
+
 	config, err := rest.InClusterConfig()
 	if err != nil {
-		panic(err.Error())
+		var kubeconfig string
+		if home := homedir.HomeDir(); home != "" {
+			kubeconfig = filepath.Join(home, ".kube", "config")
+		}
+		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
+		if err != nil {
+			log.Printf("Error creating config from kubeconfig: %v", err)
+			return
+		}
 	}
-
 	clientset, err := kubernetes.NewForConfig(config)
+
 	if err != nil {
 		panic(err.Error())
 	}
@@ -84,6 +100,12 @@ func restartPod(metadata DiunMetadata) {
 	if pod.ObjectMeta.OwnerReferences[0].Kind != "ReplicaSet" {
 		log.Println("not controlled by ReplicaSet")
 		return
+	}
+	for _, containerStatus := range pod.Status.ContainerStatuses {
+		if containerStatus.Name == metadata.ContainerName && strings.Contains(containerStatus.ImageID, webhook.Digest) {
+			log.Println("skipping pod as it is already up to date")
+			return
+		}
 	}
 	rs, err := clientset.AppsV1().ReplicaSets(metadata.PodNamespace).Get(context.TODO(), pod.ObjectMeta.OwnerReferences[0].Name, metav1.GetOptions{})
 	if err != nil {

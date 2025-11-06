@@ -1,20 +1,9 @@
 {
-    "diun_version": "v4.29.0",
-    "hostname": "diun-55876b74bb-cbnqn",
-    "status": "update",
-    "provider": "kubernetes",
-    "image": "lscr.io/linuxserver/babybuddy:latest",
-    "hub_link": "https://github.com/linuxserver/docker-babybuddy/packages",
-    "mime_type": "application/vnd.oci.image.index.v1+json",
-    "digest": "sha256:23835f6cbc8825446c35107f6b70834046b0626a82f254d2726c3479ecc8f2fb",
-    "created": "2025-01-12T21:26:18.273865023Z",
-    "platform": "linux/amd64",
+    "image": "ghcr.io/mtricht/tricht.eu:latest",
+    "digest": "sha256:2342932410c3a7ddd8f782ecfe477a728b53ce3141ffb949d6e5f425cae2fda",
     "metadata": {
-      "ctn_command": "",
-      "ctn_name": "babybuddy",
-      "pod_createdat": "2025-01-08 19:09:13 +0100 CET",
-      "pod_name": "babybuddy-5799c9bddb-vpmrc",
-      "pod_namespace": "default",
-      "pod_status": "&PodStatus{Phase:Running,Conditions:[]PodCondition{PodCondition{Type:PodReadyToStartContainers,Status:True,LastProbeTime:0001-01-01 00:00:00 +0000 UTC,LastTransitionTime:2025-01-08 19:09:33 +0100 CET,Reason:,Message:,},PodCondition{Type:Initialized,Status:True,LastProbeTime:0001-01-01 00:00:00 +0000 UTC,LastTransitionTime:2025-01-08 19:09:13 +0100 CET,Reason:,Message:,},PodCondition{Type:Ready,Status:True,LastProbeTime:0001-01-01 00:00:00 +0000 UTC,LastTransitionTime:2025-01-08 19:09:33 +0100 CET,Reason:,Message:,},PodCondition{Type:ContainersReady,Status:True,LastProbeTime:0001-01-01 00:00:00 +0000 UTC,LastTransitionTime:2025-01-08 19:09:33 +0100 CET,Reason:,Message:,},PodCondition{Type:PodScheduled,Status:True,LastProbeTime:0001-01-01 00:00:00 +0000 UTC,LastTransitionTime:2025-01-08 19:09:13 +0100 CET,Reason:,Message:,},},Message:,Reason:,HostIP:192.168.1.14,PodIP:10.244.4.131,StartTime:2025-01-08 19:09:13 +0100 CET,ContainerStatuses:[]ContainerStatus{ContainerStatus{Name:babybuddy,State:ContainerState{Waiting:nil,Running:&ContainerStateRunning{StartedAt:2025-01-08 19:09:32 +0100 CET,},Terminated:nil,},LastTerminationState:ContainerState{Waiting:nil,Running:nil,Terminated:nil,},Ready:true,RestartCount:0,Image:lscr.io/linuxserver/babybuddy:latest,ImageID:lscr.io/linuxserver/babybuddy@sha256:b1a70467adef8ce0f735327981c25838939580883767b3fc8af2b33908c870b5,ContainerID:containerd://2461c44323c255ec56827dc1880df80004f67d3bbe96c51f7bd39475fe326418,Started:*true,AllocatedResources:ResourceList{},Resources:nil,VolumeMounts:[]VolumeMountStatus{VolumeMountStatus{Name:babybuddy,MountPath:/config,ReadOnly:false,RecursiveReadOnly:nil,},VolumeMountStatus{Name:kube-api-access-6psxh,MountPath:/var/run/secrets/kubernetes.io/serviceaccount,ReadOnly:true,RecursiveReadOnly:*Disabled,},},User:nil,AllocatedResourcesStatus:[]ResourceStatus{},},},QOSClass:BestEffort,InitContainerStatuses:[]ContainerStatus{},NominatedNodeName:,PodIPs:[]PodIP{PodIP{IP:10.244.4.131,},},EphemeralContainerStatuses:[]ContainerStatus{},Resize:,ResourceClaimStatuses:[]PodResourceClaimStatus{},HostIPs:[]HostIP{HostIP{IP:192.168.1.14,},},}"
+      "ctn_name": "blog",
+      "pod_name": "blog-57b75c846c-89png",
+      "pod_namespace": "default"
     }
   }
